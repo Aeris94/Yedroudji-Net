@@ -1,6 +1,6 @@
 # Yedroudji-Net
 
-#To do
+To do
 - move validation to different file
 - check accuracy on test set every x iterations and save best model
 
