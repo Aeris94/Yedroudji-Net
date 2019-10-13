@@ -20,8 +20,7 @@ def load_data(folder_path):
         root=folder_path,
         transform=torchvision.transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5])
+            transforms.ToTensor()
         ]))
     
     dataloader = torch.utils.data.DataLoader(
