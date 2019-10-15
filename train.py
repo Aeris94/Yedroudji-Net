@@ -10,6 +10,8 @@ def train(trainloader, testloader):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = Yedroudj_Net.Yedroudj_Net()
     net.to(device)
+    best_accuracy = 0
+    running_accuracy = 0
 
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.SGD(net.parameters(), net_config.lr, net_config.momentum, weight_decay=0.0001)
@@ -35,7 +37,18 @@ def train(trainloader, testloader):
             running_loss += loss.item()
             if i % net_config.validation_freq == net_config.validation_freq - 1:    # print every 2000 mini-batches
                 print('[%d, %5d] loss: %.3f' %(epoch + 1, i + 1, running_loss / net_config.validation_freq))
-                validation.val-training-save-best(net, testloader)
+                running_accuracy = validation.valTrainingSaveBest(net, testloader)
+                if running_accuracy >= best_accuracy:
+                    best_accuracy = running_accuracy
+                    saveBestModelInfo(net, epoch, i, running_loss / net_config.validation_freq, best_accuracy)
                 running_loss = 0.0
 
     return net
+
+def saveBestModelInfo(net, epoch, i, loss, accuracy):
+    MODEL_PATH = './cifar_net.pth'
+    INFO_PATH = './info_net.txt'
+    info_file = open(INFO_PATH, 'a')
+    info_file.writelines('[%d, %5d] loss: %.3f accuracy %.3f\n' %(epoch + 1, i + 1, loss, accuracy))
+    info_file.close()
+    torch.save(net.state_dict(), MODEL_PATH)

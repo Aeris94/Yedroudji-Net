@@ -16,6 +16,8 @@ trainloader = data_loader.get_train_data_loader()
 testloader = data_loader.get_test_data_loader()
 classes = ('cover', 'stego')
 
+print('Starting training....')
+
 net = train.train(trainloader, testloader)
 
 print('Finished Training')
