@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import Yedroudj_Net
 import net_config
+import validation
 
 def train(trainloader, testloader):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -34,6 +35,7 @@ def train(trainloader, testloader):
             running_loss += loss.item()
             if i % net_config.validation_freq == net_config.validation_freq - 1:    # print every 2000 mini-batches
                 print('[%d, %5d] loss: %.3f' %(epoch + 1, i + 1, running_loss / net_config.validation_freq))
+                validation.val-training-save-best(net, testloader)
                 running_loss = 0.0
 
     return net
