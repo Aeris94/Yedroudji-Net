@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import SRM_Filters
+import SRM_Kernels
 
 class SRM_conv2d(nn.Module):
     def __init__(self, stride=1, padding=2):
@@ -12,7 +12,7 @@ class SRM_conv2d(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
-        self.weight.data = torch.FloatTensor(SRM_Filters.SRM_Filters)
+        self.weight.data = torch.FloatTensor(SRM_Kernels.SRM_Kernels)
         self.bias.data.zero_()
 
     def forward(self, input):
@@ -30,19 +30,19 @@ class Yedroudj_Net(nn.Module):
 
         self.conv2 = nn.Conv2d(30, 30, 5, stride=1, padding=2, bias=self.bias)
         self.batchNorm2 = nn.BatchNorm2d(30, affine=True)
-        self.avgPool2 = nn.AvgPool2d(5)
+        self.avgPool = nn.AvgPool2d(5)
 
         self.conv3 = nn.Conv2d(30, 32, 3, stride=1, padding=2, bias=self.bias)
+        # should there be another scaling layer ???? - batch norm learns its parameters by default
         self.batchNorm3 = nn.BatchNorm2d(32, affine=True)
-        self.avgPool3 = nn.AvgPool2d(5)
 
         self.conv4 = nn.Conv2d(32, 64, 3, stride=1, padding=2, bias=self.bias)
         self.batchNorm4 = nn.BatchNorm2d(64, affine=True)
-        self.avgPool4 = nn.AvgPool2d(5)
 
         self.conv5 = nn.Conv2d(64, 128, 3, stride=1, padding=2, bias=self.bias)
         self.batchNorm5 = nn.BatchNorm2d(128, affine=True)
-        self.globalAvgPool = nn.AvgPool2d(4) # tu jest moze chyba nie teges???
+        # not sure if this average poool is right
+        self.globalAvgPool = nn.AvgPool2d(4) 
 
         self.fc1 = nn.Linear(128 * 1 * 1, 256)
         self.fc2 = nn.Linear(256, 1024)
@@ -62,30 +62,31 @@ class Yedroudj_Net(nn.Module):
         x = self.conv2(x)
         x = self.batchNorm2(x)
         x = torch.clamp(x, min=-2, max=2)
-        x = self.avgPool2(x)
+        x = self.avgPool(x)
 
         # block 3
         x = self.conv3(x)
         x = self.batchNorm3(x)
         x = F.relu(x)
-        x = self.avgPool3(x)
+        x = self.avgPool(x)
 
         # block 4
         x = self.conv4(x)
         x = self.batchNorm4(x)
         x = F.relu(x)
-        x = self.avgPool4(x)
+        x = self.avgPool(x)
 
         # block 5
         x = self.conv5(x)
         x = self.batchNorm5(x)
         x = F.relu(x)
         x = self.globalAvgPool(x)
-
+      
         # CLASYFFICATION MODULE
-        #print(x.size())
         x = x.view(-1, 128 * 1 * 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        # softmax layer - what dim=-1 means???
+        x = F.softmax(self.fc3(x), dim=1)
+
         return x
