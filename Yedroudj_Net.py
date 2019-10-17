@@ -33,7 +33,6 @@ class Yedroudj_Net(nn.Module):
         self.avgPool = nn.AvgPool2d(5)
 
         self.conv3 = nn.Conv2d(30, 32, 3, stride=1, padding=2, bias=self.bias)
-        # should there be another scaling layer ???? - batch norm learns its parameters by default
         self.batchNorm3 = nn.BatchNorm2d(32, affine=True)
 
         self.conv4 = nn.Conv2d(32, 64, 3, stride=1, padding=2, bias=self.bias)
@@ -41,7 +40,6 @@ class Yedroudj_Net(nn.Module):
 
         self.conv5 = nn.Conv2d(64, 128, 3, stride=1, padding=2, bias=self.bias)
         self.batchNorm5 = nn.BatchNorm2d(128, affine=True)
-        # not sure if this average poool is right
         self.globalAvgPool = nn.AvgPool2d(4) 
 
         self.fc1 = nn.Linear(128 * 1 * 1, 256)
