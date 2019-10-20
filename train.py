@@ -15,7 +15,7 @@ def trainYeroudj(trainloader, testloader):
     best_accuracy = 0
     running_accuracy = 0
 
-    criterion = nn.CrossEntropyLoss().to(device)
+    criterion = nn.NLLLoss().to(device)
     optimizer = optim.SGD(net.parameters(), net_config.lr, net_config.momentum, weight_decay=net_config.weight_decay)
     lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=net_config.epochs*0.1, gamma=net_config.gamma, last_epoch=-1)
 
@@ -33,21 +33,25 @@ def trainYeroudj(trainloader, testloader):
 
             # print statistics every net_config.validation_freq iterations in epoch
             # save if model is better than previous
+            # print(loss.item())
             running_loss += loss.item()
             if i % net_config.validation_freq == net_config.validation_freq -1:
                 print('[%d, %5d] loss: %.3f' %(epoch + 1, i + 1, running_loss / net_config.validation_freq))
+                SaveInfoToFile(epoch, i, running_loss / net_config.validation_freq, best_accuracy)
                 running_accuracy = validation.valTrainingSaveBest(net, testloader)
                 if running_accuracy >= best_accuracy:
                     best_accuracy = running_accuracy
-                    saveBestModelInfo(net, epoch, i, running_loss / net_config.validation_freq, best_accuracy)
+                    saveBestModelInfo(net)
                 running_loss = 0.0
 
-def saveBestModelInfo(net, epoch, i, loss, accuracy):
-    MODEL_PATH = './cifar_net.pth'
+def SaveInfoToFile(epoch, i, loss, accuracy):
     INFO_PATH = './info_net.txt'
     info_file = open(INFO_PATH, 'a')
     info_file.writelines('[%d, %5d] loss: %.3f accuracy %.3f\n' %(epoch + 1, i + 1, loss, accuracy))
     info_file.close()
+
+def saveBestModelInfo(net):
+    MODEL_PATH = './cifar_net.pth'
     torch.save(net.state_dict(), MODEL_PATH)
 
 def weights_init(m):

@@ -5,13 +5,13 @@ train_data_folder = 'data/train'
 test_data_folder = 'data/val'
 
 # btach-size - number of images that are loaded at once to GPU
-batch_size = 10
+batch_size = 40
 num_workers = 0
 
 shuffle = True
 
 # max number of epochs
-epochs = 10000
+epochs = 1000
 
 # optimizer learining rate
 lr = 0.01
@@ -23,7 +23,7 @@ momentum = 0.95
 weight_decay = 0.0001
 
 # number of iterations in epoch after with validation on test set will be performed
-validation_freq = 2
+validation_freq = 600
 
 # lr scheduler gamma
 gamma = 0.1
